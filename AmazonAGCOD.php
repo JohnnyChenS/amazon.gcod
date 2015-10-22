@@ -1,11 +1,27 @@
 <?php
 /**
  * @author Johnny Chen <chz0321@gmail.com>
- * @desc This class is for Amazon GiftCode on Demand service.
+ * @desc This class is for making a request to Amazon GiftCode on Demand service API.
  *       amazon agcod official doc: https://s3.amazonaws.com/AGCOD/tech_spec/AGCODTechSpec.pdf
+ *
+ * sample code:
+ * 
+ * $partnerId = 'YourCompanyID';
+ * $accessKey = 'findfromYourAwsAccountManagementPage';
+ * $secretKey = 'findYourAwsAccountManagementPage';
+ * $regionCode = 'us-east-1';
+ * $host = 'host:agcod-v2-gamma.amazon.com';
+ * $endpoint = 'host:agcod-v2-gamma.amazon.com';
+ *
+ * $uniqueRequestId = $partnerId.rand(0,99); //assign a unique request id for each request
+ * 
+ * $gcod = new AmazonGCOD($partnerId,$accessKey,$secretKey,$regionCode,$host,$endpoint,$uniqueRequestId);
+ * $giftcard = $gcod->createGiftCode(5); //request for a USD$5 giftcard code
+ *
+ * $gcod->cancelGiftCode($giftcard['gcId']); //
  */
 
-class AmazonAGCOD{	
+class AmazonGCOD{	
 	private $a_PartnerId = '';
 	private $a_AccessKey = '';
 	private $a_SecretKey = '';
@@ -18,7 +34,7 @@ class AmazonAGCOD{
 	private $a_Timestamp = '';
 	private $a_RequestId = '';
 	
-    public function __construct($partnerID,$accessKey,$secretKey,$regionCode,$host,$endpoint)
+    public function __construct($partnerID,$accessKey,$secretKey,$regionCode,$host,$endpoint,$requestId)
     {
         $this->a_PartnerId = $partnerID;
         $this->a_AccessKey = $accessKey;
@@ -31,11 +47,11 @@ class AmazonAGCOD{
     	$this->a_Timestamp_ISO8601 = $time;
     	$this->a_Timestamp = substr($time,0,8);
     	
-    	$str = sprintf('%012s', rand(0,9999));//gen unique request id
+    	$str = sprintf('%012s', $requestId);
     	$this->a_RequestId = $this->a_PartnerId . $str;
     }
     
-    public function getCode($gc_amount) {
+    public function createGiftCode($gc_amount) {
         $op = 'CreateGiftCard';
         // step1. gen json "PAYLOAD"
         $Data = array();
@@ -77,7 +93,7 @@ class AmazonAGCOD{
     	return $return;
     }
 
-    public function cancelCode($amazonGcId){
+    public function cancelGiftCode($amazonGcId){
         $op = 'CancelGiftCard';
 
         $data = array();
