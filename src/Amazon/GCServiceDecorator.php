@@ -7,19 +7,20 @@
  *
  * sample code:
  *
- * $partnerId = 'YourCompanyID';
- * $accessKey = 'findfromYourAwsAccountManagementPage';
- * $secretKey = 'findYourAwsAccountManagementPage';
+ * //replace these configurations with your own settings in the \Amazon\Config file
+ * $__partnerId = 'YourCompanyID';
+ * $__accessKey = 'findfromYourAwsAccountManagementPage';
+ * $__secretKey = 'findYourAwsAccountManagementPage';
+ *
+ * //then instantiate the GCServiceDecorator with the specific api region:
  * $regionCode = 'us-east-1'; //your aws server region
  * $host = 'host:agcod-v2-gamma.amazon.com';
  * $endpoint = 'https://agcod-v2-gamma.amazon.com';
  *
- * $uniqueRequestId = $partnerId.rand(0,99); //assign a unique request id for each request
+ * $gcSerivce = new \Amazon\GCServiceDecorator($regionCode,$host,$endpoint,'USD');
+ * $giftcard = $gcService->createGiftCode(5); //request for a USD$5 giftcard code
  *
- * $gcod = new AmazonGCOD($partnerId,$accessKey,$secretKey,$regionCode,$host,$endpoint,$uniqueRequestId);
- * $giftcard = $gcod->createGiftCode(5); //request for a USD$5 giftcard code
- *
- * $gcod->cancelGiftCode($giftcard['gcId']); //cancel the code by Code ID
+ * $gcService->cancelGiftCode($giftcard['gcId']); //cancel the code by Code ID
  */
 namespace Amazon;
 
@@ -35,8 +36,8 @@ class GCServiceDecorator extends GCService
      * @return mixed
      */
     public function createGiftCode($gcAmount) {
-        $op = 'CreateGiftCard';
-        $currentTimestamp = time();
+        $op                       = 'CreateGiftCard';
+        $currentTimestamp         = time();
         $iso8601FormattedDateTime = $this->__getIso8601TimeFormat($currentTimestamp);
 
         // step1. gen json "PAYLOAD"
@@ -54,8 +55,8 @@ class GCServiceDecorator extends GCService
     }
 
     public function cancelGiftCode($codeId) {
-        $op = 'CancelGiftCard';
-        $currentTimestamp = time();
+        $op                       = 'CancelGiftCard';
+        $currentTimestamp         = time();
         $iso8601FormattedDateTime = $this->__getIso8601TimeFormat($currentTimestamp);
 
         $data                      = [];
@@ -72,10 +73,10 @@ class GCServiceDecorator extends GCService
     }
 
     private function __generateRequestId() {
-        return  sprintf("%012s", Config::getPartnerId().substr(microtime(TRUE) * 10000, -7));
+        return sprintf("%012s", Config::getPartnerId() . substr(microtime(TRUE) * 10000, -7));
     }
 
-    private function __getIso8601TimeFormat($timestamp){
-        return date('Ymd\THis\Z', $timestamp - date('Z',$timestamp));
+    private function __getIso8601TimeFormat($timestamp) {
+        return date('Ymd\THis\Z', $timestamp - date('Z', $timestamp));
     }
 }
