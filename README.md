@@ -3,17 +3,20 @@
 
 Usage:
 ```php
+//replace these configurations with your own settings in the \Amazon\Config file
 $partnerId = 'YourCompanyID';
 $accessKey = 'findfromYourAwsAccountManagementPage';
 $secretKey = 'findYourAwsAccountManagementPage';
+
+//US Region Amazon Service API should use these configuration
 $regionCode = 'us-east-1';
 $host = 'host:agcod-v2-gamma.amazon.com';
 $endpoint = 'https://agcod-v2-gamma.amazon.com';
 
-$uniqueRequestId = $partnerId.rand(0,99); //assign a unique request id for each request
 
-$gcod = new AmazonGCOD($partnerId,$accessKey,$secretKey,$regionCode,$host,$endpoint,$uniqueRequestId);
-$giftcard = $gcod->createGiftCode(5); //request for a USD$5 giftcard code
+$gcService = new GCServiceDecorator($regionCode, $host, $endpint, 'USD');
 
-$gcod->cancelGiftCode($giftcard['gcId']); //
+$giftcard = $gcService->createGiftCode(3);//request for a USD$3 giftcard code
+
+$gcService->cancelGiftCode($giftcard['gcId']); //cancel the card
 ```

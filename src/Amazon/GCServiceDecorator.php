@@ -23,12 +23,11 @@
  */
 namespace Amazon;
 
-class GCOD
+class GCServiceDecorator extends GCService
 {
-    private $__service;
 
-    public function __construct(GCService $service) {
-        $this->__service = $service;
+    public function __construct($regionCode, $host, $endpoint, $currency) {
+        parent::__construct($regionCode, $host, $endpoint, $currency);
     }
 
     /**
@@ -36,29 +35,28 @@ class GCOD
      * @return mixed
      */
     public function createGiftCode($gcAmount) {
+        $op = 'CreateGiftCard';
         $currentTimestamp = time();
         $iso8601FormattedDateTime = $this->__getIso8601TimeFormat($currentTimestamp);
 
-        $op = 'CreateGiftCard';
         // step1. gen json "PAYLOAD"
         $data                      = [];
         $data['creationRequestId'] = $this->__generateRequestId();
         $data['partnerId']         = Config::getPartnerId();
-        $data['value']             = ['currencyCode' => $this->__service->getCurrency(), 'amount' => $gcAmount];
+        $data['value']             = ['currencyCode' => $this->getCurrency(), 'amount' => $gcAmount];
 
         $payload                = json_encode($data);
-        $hashedPayload          = $this->__service->hashPayload($payload);
-        $hashedCanonicalRequest = $this->__service->hashCanonicalRequest($hashedPayload, $op, $iso8601FormattedDateTime);
-        $signature              = $this->__service->generateSignature($hashedCanonicalRequest, $iso8601FormattedDateTime);
+        $hashedPayload          = $this->hashPayload($payload);
+        $hashedCanonicalRequest = $this->hashCanonicalRequest($hashedPayload, $op, $iso8601FormattedDateTime);
+        $signature              = $this->generateSignature($hashedCanonicalRequest, $iso8601FormattedDateTime);
 
-        return json_decode($this->__service->sendRequest($payload, $signature, $op, $iso8601FormattedDateTime), TRUE);
+        return json_decode($this->sendRequest($payload, $signature, $op, $iso8601FormattedDateTime), TRUE);
     }
 
     public function cancelGiftCode($codeId) {
+        $op = 'CancelGiftCard';
         $currentTimestamp = time();
         $iso8601FormattedDateTime = $this->__getIso8601TimeFormat($currentTimestamp);
-
-        $op = 'CancelGiftCard';
 
         $data                      = [];
         $data['creationRequestId'] = $this->__generateRequestId();
@@ -66,15 +64,15 @@ class GCOD
         $data['gcId']              = $codeId;
 
         $payload                = json_encode($data);
-        $hashedPayload          = $this->__service->hashPayload($payload);
-        $hashedCanonicalRequest = $this->__service->hashCanonicalRequest($hashedPayload, $op, $iso8601FormattedDateTime);
-        $signature              = $this->__service->generateSignature($hashedCanonicalRequest, $iso8601FormattedDateTime);
+        $hashedPayload          = $this->hashPayload($payload);
+        $hashedCanonicalRequest = $this->hashCanonicalRequest($hashedPayload, $op, $iso8601FormattedDateTime);
+        $signature              = $this->generateSignature($hashedCanonicalRequest, $iso8601FormattedDateTime);
 
-        return json_decode($this->__service->sendRequest($payload, $signature, $op, $iso8601FormattedDateTime), TRUE);
+        return json_decode($this->sendRequest($payload, $signature, $op, $iso8601FormattedDateTime), TRUE);
     }
 
     private function __generateRequestId() {
-        return Config::getPartnerId() . sprintf("%012s", microtime(TRUE) * 1000);
+        return  sprintf("%012s", Config::getPartnerId().substr(microtime(TRUE) * 10000, -7));
     }
 
     private function __getIso8601TimeFormat($timestamp){

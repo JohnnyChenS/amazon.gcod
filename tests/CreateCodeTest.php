@@ -1,5 +1,8 @@
 <?php
 include __DIR__ . '/../vendor/autoload.php';
+include __DIR__ ."/../src/Amazon/Config.php";
+include __DIR__ ."/../src/Amazon/GCService.php";
+include __DIR__ ."/../src/Amazon/GCServiceDecorator.php";
 
 /**
  * Created by PhpStorm.
@@ -7,13 +10,13 @@ include __DIR__ . '/../vendor/autoload.php';
  * Date: 2016/12/15
  * Time: 15:46
  */
-use Amazon\GCOD;
+use Amazon\GCServiceDecorator;
 
 class CreateCodeTest extends PHPUnit_Framework_TestCase
 {
     public function testRespondSuccess() {
-        $mockAgcod = $this->getMock(GCOD::class, ['_sendRequest'], ['mycom', 'mykey', 'skey', 'us-east-1', 'host:agcod-v2-gamma.amazon.com', 'https://agcod-v2-gamma.amazon.com', 'Test-request-001']);
-        $mockAgcod->expects($this->once())->method('_sendRequest')->will(
+        $mockAgcod = $this->getMock(GCServiceDecorator::class, ['sendRequest'], ['us-east-1', 'host:agcod-v2-gamma.amazon.com', 'https://agcod-v2-gamma.amazon.com', 'USD']);
+        $mockAgcod->expects($this->once())->method('sendRequest')->will(
             $this->returnCallback(function ($signature, $payload, $op) {
                 return json_encode([
                     'operation' => $op,
@@ -26,10 +29,11 @@ class CreateCodeTest extends PHPUnit_Framework_TestCase
         $result = $mockAgcod->createGiftCode(3);
 
         $this->assertEquals('CreateGiftCard', $result['operation']);
-        $this->assertEquals('{"creationRequestId":"mycomTest-request-001","partnerId":"mycom","value":{"currencyCode":"USD","amount":3}}', $result['payload']);
-    }
 
-    public function testRealResponse(){
-        new
+        $signature = json_decode($result['signature'],TRUE);
+
+        $this->assertEquals("YourPartnerId", $signature['partnerId']);
+        $this->assertEquals(3, $signature['value']['amount']);
+        $this->assertEquals('USD', $signature['value']['currencyCode']);
     }
 }

@@ -9,7 +9,7 @@
 namespace Amazon;
 
 
-class GCService
+abstract class GCService
 {
     const __SERVICE_NAME__ = 'AGCODService';
 
@@ -18,7 +18,6 @@ class GCService
     private $__host;
     private $__currency;
 
-
     public function __construct($regionCode, $host, $endpoint, $currency) {
         $this->__regionCode = $regionCode;
         $this->__endpoint   = $endpoint;
@@ -26,21 +25,20 @@ class GCService
         $this->__currency   = $currency;
     }
 
-
     /**
      * @return mixed
      */
-    public function getCurrency() {
+    protected function getCurrency() {
         return $this->__currency;
     }
 
 
-    public function hashPayload($payload) {
+    protected function hashPayload($payload) {
         // step2. hash $payload
         return hash('sha256', $payload);
     }
 
-    public function hashCanonicalRequest($hashedPayload, $op, $iso8601FormattedDateTime) {
+    protected function hashCanonicalRequest($hashedPayload, $op, $iso8601FormattedDateTime) {
         // step3. gen string "CANONICAL REQUEST" with $payloadHashed
         $canonicalRequest = "POST\n" .
             "/{$op}\n" .
@@ -55,7 +53,7 @@ class GCService
         return hash('sha256', $canonicalRequest);
     }
 
-    public function generateSignature($hashedCanonicalRequest, $iso8601FormattedDateTime) {
+    protected function generateSignature($hashedCanonicalRequest, $iso8601FormattedDateTime) {
         // step5. gen string "SIGN" with $CanonicalRequestHashed
         $str2sign = "AWS4-HMAC-SHA256\n" .
             $iso8601FormattedDateTime . "\n" .
@@ -74,7 +72,7 @@ class GCService
         return $signature;
     }
 
-    public function sendRequest($payload, $signature, $op, $iso8601FormattedDateTime) {
+    protected function sendRequest($payload, $signature, $op, $iso8601FormattedDateTime) {
         // get gc
         return $this->__post($this->__endpoint . $op, $this->__generateHeaders($signature, $op, $iso8601FormattedDateTime), $payload);
     }
