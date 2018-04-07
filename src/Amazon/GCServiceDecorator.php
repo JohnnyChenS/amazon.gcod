@@ -51,13 +51,6 @@ class GCServiceDecorator extends GCService
         parent::__construct($envConf[$region]['regionCode'], $envConf[$region]['host'], $envConf[$region]['endpoint'], $envConf[$region]['currencyCode']);
     }
 
-    private function __useSandBox() {
-        if ($this->__isSandBox)
-            return $this->__regionConf['sandBox'];
-        else
-            return $this->__regionConf['prod'];
-    }
-
     /**
      * @param $gcAmount
      * @return mixed
@@ -105,5 +98,12 @@ class GCServiceDecorator extends GCService
 
     private function __getIso8601TimeFormat($timestamp) {
         return date('Ymd\THis\Z', $timestamp - date('Z', $timestamp));
+    }
+
+    private function __useSandBox() {
+        if ($this->__isSandBox)
+            return $this->__regionConf['sandBox'];
+        else
+            return $this->__regionConf['prod'];
     }
 }
