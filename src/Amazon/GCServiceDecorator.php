@@ -12,12 +12,8 @@
  * $__accessKey = 'findfromYourAwsAccountManagementPage';
  * $__secretKey = 'findYourAwsAccountManagementPage';
  *
- * //then instantiate the GCServiceDecorator with the specific api region:
- * $regionCode = 'us-east-1'; //your aws server region
- * $host = 'host:agcod-v2-gamma.amazon.com';
- * $endpoint = 'https://agcod-v2-gamma.amazon.com';
  *
- * $gcSerivce = new \Amazon\GCServiceDecorator($regionCode,$host,$endpoint,'USD');
+ * $gcSerivce = new \Amazon\GCServiceDecorator('us');
  * $giftcard = $gcService->createGiftCode(5); //request for a USD$5 giftcard code
  *
  * $gcService->cancelGiftCode($giftcard['gcId']); //cancel the code by Code ID
@@ -26,9 +22,40 @@ namespace Amazon;
 
 class GCServiceDecorator extends GCService
 {
+    private $__isSandBox = FALSE;
 
-    public function __construct($regionCode, $host, $endpoint, $currency) {
-        parent::__construct($regionCode, $host, $endpoint, $currency);
+    private $__regionConf = [
+        'sandBox' => [
+            'us' => [
+                'regionCode'   => 'us-east-1',
+                'host'         => 'host:agcod-v2-gamma.amazon.com',
+                'endpoint'     => 'https://agcod-v2-gamma.amazon.com',
+                'currencyCode' => 'USD',
+            ],
+        ],
+
+        'prod' => [
+            'us' => [
+                'regionCode'   => 'us-east-1',
+                'host'         => 'host:agcod-v2.amazon.com',
+                'endpoint'     => 'https://agcod-v2.amazon.com',
+                'currencyCode' => 'USD',
+            ],
+        ],
+    ];
+
+    public function __construct($region, $useSandBox = false) {
+        $this->__isSandBox = $useSandBox;
+        $envConf = $this->__useSandBox();
+
+        parent::__construct($envConf[$region]['regionCode'], $envConf[$region]['host'], $envConf[$region]['endpoint'], $envConf[$region]['currencyCode']);
+    }
+
+    private function __useSandBox() {
+        if ($this->__isSandBox)
+            return $this->__regionConf['sandBox'];
+        else
+            return $this->__regionConf['prod'];
     }
 
     /**

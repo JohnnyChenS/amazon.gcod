@@ -15,7 +15,7 @@ use Amazon\GCServiceDecorator;
 class CreateCodeTest extends PHPUnit_Framework_TestCase
 {
     public function testRespondSuccess() {
-        $mockAgcod = $this->getMock(GCServiceDecorator::class, ['sendRequest'], ['us-east-1', 'host:agcod-v2-gamma.amazon.com', 'https://agcod-v2-gamma.amazon.com', 'USD']);
+        $mockAgcod = $this->getMock(GCServiceDecorator::class, ['sendRequest'], ['us', TRUE]);
         $mockAgcod->expects($this->once())->method('sendRequest')->will(
             $this->returnCallback(function ($signature, $payload, $op) {
                 return json_encode([
