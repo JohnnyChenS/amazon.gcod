@@ -6,10 +6,10 @@
  * Time: 17:47
  */
 
-namespace Amazon;
+namespace Amazon\Config;
 
 
-class Config
+class Account
 {
     private static $__partnerId = 'YourPartnerId';
     private static $__accessKey = 'YourAccessKey';

@@ -1,8 +1,9 @@
 <?php
 include __DIR__ . '/../vendor/autoload.php';
-include __DIR__ ."/../src/Amazon/Config.php";
-include __DIR__ ."/../src/Amazon/GCService.php";
-include __DIR__ ."/../src/Amazon/GCServiceDecorator.php";
+include __DIR__ . "/../src/Amazon/Config/Account.php";
+include __DIR__ . "/../src/Amazon/Config/Region.php";
+include __DIR__ . "/../src/Amazon/GCService.php";
+include __DIR__ . "/../src/Amazon/GCServiceWrapper.php";
 
 /**
  * Created by PhpStorm.
@@ -10,13 +11,16 @@ include __DIR__ ."/../src/Amazon/GCServiceDecorator.php";
  * Date: 2016/12/15
  * Time: 15:46
  */
-use Amazon\GCServiceDecorator;
+use Amazon\GCService;
+use Amazon\Config;
 
 class CreateCodeTest extends PHPUnit_Framework_TestCase
 {
     public function testRespondSuccess() {
-        $mockAgcod = $this->getMock(GCServiceDecorator::class, ['sendRequest'], ['us', TRUE]);
-        $mockAgcod->expects($this->once())->method('sendRequest')->will(
+        $config = Config\Region::getServiceConf(Config\Region::US, TRUE);
+
+        $mockService = $this->getMock(GCService::class, ['sendRequest'], [$config['regionCode'], $config['host'], $config['endpoint'], $config['currencyCode']]);
+        $mockService->expects($this->once())->method('sendRequest')->will(
             $this->returnCallback(function ($signature, $payload, $op) {
                 return json_encode([
                     'operation' => $op,
@@ -26,11 +30,17 @@ class CreateCodeTest extends PHPUnit_Framework_TestCase
             })
         );
 
-        $result = $mockAgcod->createGiftCode(3);
+        $wrapper = new \Amazon\GCServiceWrapper(Config\Region::US, TRUE);
 
+        $reflection = new ReflectionClass($wrapper);
+        $property = $reflection->getProperty('__GCService');
+        $property->setAccessible(true);
+        $property->setValue($wrapper, $mockService);
+
+        $result = $wrapper->createGiftCode(3);
         $this->assertEquals('CreateGiftCard', $result['operation']);
 
-        $signature = json_decode($result['signature'],TRUE);
+        $signature = json_decode($result['signature'], TRUE);
 
         $this->assertEquals("YourPartnerId", $signature['partnerId']);
         $this->assertEquals(3, $signature['value']['amount']);

@@ -9,7 +9,7 @@
 namespace Amazon;
 
 
-abstract class GCService
+class GCService
 {
     const __SERVICE_NAME__ = 'AGCODService';
 
@@ -28,17 +28,17 @@ abstract class GCService
     /**
      * @return mixed
      */
-    protected function getCurrency() {
+    function getCurrency() {
         return $this->__currency;
     }
 
 
-    protected function hashPayload($payload) {
+    function hashPayload($payload) {
         // step2. hash $payload
         return hash('sha256', $payload);
     }
 
-    protected function hashCanonicalRequest($hashedPayload, $op, $iso8601FormattedDateTime) {
+    function hashCanonicalRequest($hashedPayload, $op, $iso8601FormattedDateTime) {
         // step3. gen string "CANONICAL REQUEST" with $payloadHashed
         $canonicalRequest = "POST\n" .
             "/{$op}\n" .
@@ -53,7 +53,7 @@ abstract class GCService
         return hash('sha256', $canonicalRequest);
     }
 
-    protected function generateSignature($hashedCanonicalRequest, $iso8601FormattedDateTime) {
+    function generateSignature($hashedCanonicalRequest, $iso8601FormattedDateTime) {
         // step5. gen string "SIGN" with $CanonicalRequestHashed
         $str2sign = "AWS4-HMAC-SHA256\n" .
             $iso8601FormattedDateTime . "\n" .
@@ -62,7 +62,7 @@ abstract class GCService
             self::__SERVICE_NAME__ . "/aws4_request\n" .
             $hashedCanonicalRequest;
         // step6. make "SIGNING KEY"
-        $kDate    = hash_hmac('sha256', $this->__convertIso8601TimeFormat2DateTime($iso8601FormattedDateTime), 'AWS4' . Config::getSecretKey(), TRUE);
+        $kDate    = hash_hmac('sha256', $this->__convertIso8601TimeFormat2DateTime($iso8601FormattedDateTime), 'AWS4' . Config\Account::getSecretKey(), TRUE);
         $kRegion  = hash_hmac('sha256', $this->__regionCode, $kDate, TRUE);
         $kService = hash_hmac('sha256', self::__SERVICE_NAME__, $kRegion, TRUE);
         $kSigning = hash_hmac('sha256', 'aws4_request', $kService, TRUE);
@@ -72,7 +72,7 @@ abstract class GCService
         return $signature;
     }
 
-    protected function sendRequest($payload, $signature, $op, $iso8601FormattedDateTime) {
+    function sendRequest($payload, $signature, $op, $iso8601FormattedDateTime) {
         // get gc
         return $this->__post($this->__endpoint . $op, $this->__generateHeaders($signature, $op, $iso8601FormattedDateTime), $payload);
     }
@@ -84,7 +84,7 @@ abstract class GCService
             $this->__host,
             'x-amz-date:' . $iso8601FormattedDateTime,
             'x-amz-target:com.amazonaws.agcod.AGCODService.' . $op,
-            'Authorization:AWS4-HMAC-SHA256 Credential=' . Config::getAccessKey() .
+            'Authorization:AWS4-HMAC-SHA256 Credential=' . Config\Account::getAccessKey() .
             '/' . $this->__convertIso8601TimeFormat2DateTime($iso8601FormattedDateTime) .
             '/us-east-1/AGCODService/aws4_request, SignedHeaders=accept;content-type;host;x-amz-date;x-amz-target,Signature=' .
             $signature,
