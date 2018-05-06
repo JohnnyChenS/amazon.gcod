@@ -46,7 +46,7 @@ class GCServiceWrapper
 
         $payload                = json_encode($data); // step1. gen json "PAYLOAD"
         $hashedPayload          = $this->__GCService->hashPayload($payload); // step2. hash $payload
-        $hashedCanonicalRequest = $this->__GCService->hashCanonicalRequest($hashedPayload, $op, $iso8601FormattedDateTime); 
+        $hashedCanonicalRequest = $this->__GCService->hashCanonicalRequest($hashedPayload, $op, $iso8601FormattedDateTime);
         $signature              = $this->__GCService->generateSignature($hashedCanonicalRequest, $iso8601FormattedDateTime);
 
         return json_decode($this->__GCService->sendRequest($payload, $signature, $op, $iso8601FormattedDateTime), TRUE);
