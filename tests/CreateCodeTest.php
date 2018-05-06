@@ -2,7 +2,7 @@
 include __DIR__ . '/../vendor/autoload.php';
 include __DIR__ . "/../src/Amazon/Config/Account.php";
 include __DIR__ . "/../src/Amazon/Config/Region.php";
-include __DIR__ . "/../src/Amazon/GCService.php";
+include __DIR__ . "/../src/Amazon/AwsService.php";
 include __DIR__ . "/../src/Amazon/GCServiceWrapper.php";
 
 /**
@@ -11,7 +11,7 @@ include __DIR__ . "/../src/Amazon/GCServiceWrapper.php";
  * Date: 2016/12/15
  * Time: 15:46
  */
-use Amazon\GCService;
+use Amazon\AwsService;
 use Amazon\Config;
 
 class CreateCodeTest extends PHPUnit_Framework_TestCase
@@ -19,7 +19,7 @@ class CreateCodeTest extends PHPUnit_Framework_TestCase
     public function testRespondSuccess() {
         $config = Config\Region::getServiceConf(Config\Region::US, TRUE);
 
-        $mockService = $this->getMock(GCService::class, ['sendRequest'], [$config['regionCode'], $config['host'], $config['endpoint'], $config['currencyCode']]);
+        $mockService = $this->getMock(AwsService::class, ['sendRequest'], [$config['regionCode'], $config['host'], $config['endpoint'], $config['currencyCode']]);
         $mockService->expects($this->once())->method('sendRequest')->will(
             $this->returnCallback(function ($signature, $payload, $op) {
                 return json_encode([
@@ -33,7 +33,7 @@ class CreateCodeTest extends PHPUnit_Framework_TestCase
         $wrapper = new \Amazon\GCServiceWrapper(Config\Region::US, TRUE);
 
         $reflection = new ReflectionClass($wrapper);
-        $property = $reflection->getProperty('__GCService');
+        $property = $reflection->getProperty('__awsService');
         $property->setAccessible(true);
         $property->setValue($wrapper, $mockService);
 

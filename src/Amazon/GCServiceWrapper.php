@@ -22,12 +22,12 @@ namespace Amazon;
 
 class GCServiceWrapper
 {
-    private $__GCService;
+    private $__awsService;
 
     public function __construct($region, $useSandbox = FALSE) {
         $serviceConfig = Config\Region::getServiceConf($region, $useSandbox);
 
-        $this->__GCService = new GCService($serviceConfig['regionCode'], $serviceConfig['host'], $serviceConfig['endpoint'], $serviceConfig['currencyCode']);
+        $this->__awsService = new AwsService($serviceConfig['regionCode'], $serviceConfig['host'], $serviceConfig['endpoint'], $serviceConfig['currencyCode']);
     }
 
     /**
@@ -42,14 +42,14 @@ class GCServiceWrapper
         $data                      = [];
         $data['creationRequestId'] = $this->__generateRequestId();
         $data['partnerId']         = Config\Account::getPartnerId();
-        $data['value']             = ['currencyCode' => $this->__GCService->getCurrency(), 'amount' => $gcAmount];
+        $data['value']             = ['currencyCode' => $this->__awsService->getCurrency(), 'amount' => $gcAmount];
 
         $payload                = json_encode($data); // step1. gen json "PAYLOAD"
-        $hashedPayload          = $this->__GCService->hashPayload($payload); // step2. hash $payload
-        $hashedCanonicalRequest = $this->__GCService->hashCanonicalRequest($hashedPayload, $op, $iso8601FormattedDateTime);
-        $signature              = $this->__GCService->generateSignature($hashedCanonicalRequest, $iso8601FormattedDateTime);
+        $hashedPayload          = $this->__awsService->hashPayload($payload); // step2. hash $payload
+        $hashedCanonicalRequest = $this->__awsService->hashCanonicalRequest($hashedPayload, $op, $iso8601FormattedDateTime);
+        $signature              = $this->__awsService->generateSignature($hashedCanonicalRequest, $iso8601FormattedDateTime);
 
-        return json_decode($this->__GCService->sendRequest($payload, $signature, $op, $iso8601FormattedDateTime), TRUE);
+        return json_decode($this->__awsService->sendRequest($payload, $signature, $op, $iso8601FormattedDateTime), TRUE);
     }
 
     public function cancelGiftCode($codeId) {
@@ -63,11 +63,11 @@ class GCServiceWrapper
         $data['gcId']              = $codeId;
 
         $payload                = json_encode($data);
-        $hashedPayload          = $this->__GCService->hashPayload($payload);
-        $hashedCanonicalRequest = $this->__GCService->hashCanonicalRequest($hashedPayload, $op, $iso8601FormattedDateTime);
-        $signature              = $this->__GCService->generateSignature($hashedCanonicalRequest, $iso8601FormattedDateTime);
+        $hashedPayload          = $this->__awsService->hashPayload($payload);
+        $hashedCanonicalRequest = $this->__awsService->hashCanonicalRequest($hashedPayload, $op, $iso8601FormattedDateTime);
+        $signature              = $this->__awsService->generateSignature($hashedCanonicalRequest, $iso8601FormattedDateTime);
 
-        return json_decode($this->__GCService->sendRequest($payload, $signature, $op, $iso8601FormattedDateTime), TRUE);
+        return json_decode($this->__awsService->sendRequest($payload, $signature, $op, $iso8601FormattedDateTime), TRUE);
     }
 
     private function __generateRequestId() {

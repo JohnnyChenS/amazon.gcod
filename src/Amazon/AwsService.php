@@ -9,7 +9,7 @@
 namespace Amazon;
 
 
-class GCService
+class AwsService
 {
     const __SERVICE_NAME__ = 'AGCODService';
 
