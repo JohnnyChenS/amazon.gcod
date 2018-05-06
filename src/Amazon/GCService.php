@@ -34,12 +34,11 @@ class GCService
 
 
     function hashPayload($payload) {
-        // step2. hash $payload
         return hash('sha256', $payload);
     }
 
     function hashCanonicalRequest($hashedPayload, $op, $iso8601FormattedDateTime) {
-        // step3. gen string "CANONICAL REQUEST" with $payloadHashed
+        // step3. gen string "CANONICAL REQUEST" with $hashedPayload;
         $canonicalRequest = "POST\n" .
             "/{$op}\n" .
             "\naccept:application/json" .
@@ -49,7 +48,7 @@ class GCService
             "\nx-amz-target:com.amazonaws.agcod.AGCODService.{$op}\n" .
             "\naccept;content-type;host;x-amz-date;x-amz-target\n" .
             $hashedPayload;
-        // step4. hash $CanonicalRequest
+        //step4. hash $CanonicalRequest
         return hash('sha256', $canonicalRequest);
     }
 
