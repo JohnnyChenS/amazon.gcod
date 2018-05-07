@@ -22,12 +22,15 @@ namespace Amazon;
 
 class GCServiceWrapper
 {
+    const __SERVICE_NAME__ = 'AGCODService';
+    const __SERVICE_TARGET__ = 'com.amazonaws.agcod';
+
     private $__awsService;
 
     public function __construct($region, $useSandbox = FALSE) {
         $serviceConfig = Config\Region::getServiceConf($region, $useSandbox);
 
-        $this->__awsService = new AwsService($serviceConfig['regionCode'], $serviceConfig['host'], $serviceConfig['endpoint'], $serviceConfig['currencyCode']);
+        $this->__awsService = new AwsService($serviceConfig['regionCode'], $serviceConfig['host'], $serviceConfig['endpoint'], $serviceConfig['currencyCode'], self::__SERVICE_NAME__, self::__SERVICE_TARGET__);
     }
 
     /**

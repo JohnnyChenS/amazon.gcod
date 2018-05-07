@@ -19,7 +19,7 @@ class CreateCodeTest extends PHPUnit_Framework_TestCase
     public function testRespondSuccess() {
         $config = Config\Region::getServiceConf(Config\Region::US, TRUE);
 
-        $mockService = $this->getMock(AwsService::class, ['sendRequest'], [$config['regionCode'], $config['host'], $config['endpoint'], $config['currencyCode']]);
+        $mockService = $this->getMock(AwsService::class, ['sendRequest'], [$config['regionCode'], $config['host'], $config['endpoint'], $config['currencyCode'], 'AGCODService','com.amazonaws.agcod']);
         $mockService->expects($this->once())->method('sendRequest')->will(
             $this->returnCallback(function ($signature, $payload, $op) {
                 return json_encode([
@@ -45,5 +45,11 @@ class CreateCodeTest extends PHPUnit_Framework_TestCase
         $this->assertEquals("YourPartnerId", $signature['partnerId']);
         $this->assertEquals(3, $signature['value']['amount']);
         $this->assertEquals('USD', $signature['value']['currencyCode']);
+    }
+
+    public function testRealRequest(){
+        $wrapper = new \Amazon\GCServiceWrapper(Config\Region::US, TRUE);
+        $result = $wrapper->createGiftCode(3);
+        var_dump($result);
     }
 }

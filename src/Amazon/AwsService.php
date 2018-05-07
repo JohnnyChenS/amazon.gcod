@@ -11,18 +11,20 @@ namespace Amazon;
 
 class AwsService
 {
-    const __SERVICE_NAME__ = 'AGCODService';
-
     private $__regionCode;
     private $__endpoint;
     private $__host;
     private $__currency;
+    private $__serviceName;
+    private $__serviceTarget;
 
-    public function __construct($regionCode, $host, $endpoint, $currency) {
-        $this->__regionCode = $regionCode;
-        $this->__endpoint   = $endpoint;
-        $this->__host       = $host;
-        $this->__currency   = $currency;
+    public function __construct($regionCode, $host, $endpoint, $currency, $serviceName, $serviceTarget) {
+        $this->__regionCode    = $regionCode;
+        $this->__endpoint      = $endpoint;
+        $this->__host          = $host;
+        $this->__currency      = $currency;
+        $this->__serviceName   = $serviceName;
+        $this->__serviceTarget = $serviceTarget;
     }
 
     /**
@@ -45,9 +47,10 @@ class AwsService
             "\ncontent-type:application/json" .
             "\n" . $this->__host .
             "\nx-amz-date:" . $iso8601FormattedDateTime .
-            "\nx-amz-target:com.amazonaws.agcod.AGCODService.{$op}\n" .
+            "\nx-amz-target:{$this->__serviceTarget}.{$this->__serviceName}.{$op}\n" .
             "\naccept;content-type;host;x-amz-date;x-amz-target\n" .
             $hashedPayload;
+
         //step4. hash $CanonicalRequest
         return hash('sha256', $canonicalRequest);
     }
@@ -58,12 +61,12 @@ class AwsService
             $iso8601FormattedDateTime . "\n" .
             $this->__convertIso8601TimeFormat2DateTime($iso8601FormattedDateTime) . "/" .
             $this->__regionCode . "/" .
-            self::__SERVICE_NAME__ . "/aws4_request\n" .
+            $this->__serviceName . "/aws4_request\n" .
             $hashedCanonicalRequest;
         // step6. make "SIGNING KEY"
         $kDate    = hash_hmac('sha256', $this->__convertIso8601TimeFormat2DateTime($iso8601FormattedDateTime), 'AWS4' . Config\Account::getSecretKey(), TRUE);
         $kRegion  = hash_hmac('sha256', $this->__regionCode, $kDate, TRUE);
-        $kService = hash_hmac('sha256', self::__SERVICE_NAME__, $kRegion, TRUE);
+        $kService = hash_hmac('sha256', $this->__serviceName, $kRegion, TRUE);
         $kSigning = hash_hmac('sha256', 'aws4_request', $kService, TRUE);
         // step7. "SIGNATURE" with $kSigning
         $signature = hash_hmac('sha256', $str2sign, $kSigning);
@@ -73,7 +76,7 @@ class AwsService
 
     function sendRequest($payload, $signature, $op, $iso8601FormattedDateTime) {
         // get gc
-        return $this->__post($this->__endpoint . $op, $this->__generateHeaders($signature, $op, $iso8601FormattedDateTime), $payload);
+        return $this->__post($this->__endpoint .'/'. $op, $this->__generateHeaders($signature, $op, $iso8601FormattedDateTime), $payload);
     }
 
     private function __generateHeaders($signature, $op, $iso8601FormattedDateTime) {
@@ -82,10 +85,10 @@ class AwsService
             'content-type:application/json',
             $this->__host,
             'x-amz-date:' . $iso8601FormattedDateTime,
-            'x-amz-target:com.amazonaws.agcod.AGCODService.' . $op,
+            'x-amz-target:' . $this->__serviceTarget . '.' . $this->__serviceName . '.' . $op,
             'Authorization:AWS4-HMAC-SHA256 Credential=' . Config\Account::getAccessKey() .
             '/' . $this->__convertIso8601TimeFormat2DateTime($iso8601FormattedDateTime) .
-            '/us-east-1/AGCODService/aws4_request, SignedHeaders=accept;content-type;host;x-amz-date;x-amz-target,Signature=' .
+            '/' . $this->__regionCode . '/' . $this->__serviceName . '/aws4_request, SignedHeaders=accept;content-type;host;x-amz-date;x-amz-target,Signature=' .
             $signature,
         ];
     }
