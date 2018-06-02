@@ -1,5 +1,9 @@
 #AGCOD means Amazon Gift Code On Demand.
 
+Install:
+```
+composer require johnnychens/amazon.gcod
+```
 
 Usage:
 ```php
