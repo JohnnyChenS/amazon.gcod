@@ -7,13 +7,16 @@
  *
  * sample code:
  *
- * //replace these configurations with your own settings in the \Amazon\Config\Account.php file
+ * //initialate the \Amazon\Config\Account class with with your own settings
+ *
  * $__partnerId = 'YourCompanyID';
  * $__accessKey = 'findfromYourAwsAccountManagementPage';
  * $__secretKey = 'findYourAwsAccountManagementPage';
  *
+ * $account = new \Amazon\Config\Account($partnerId, $accessKey, $secretKey);
+ * $region = new \Amazon\Config\Region(\Amazon\Config\Region::US);
  *
- * $gcSerivce = new \Amazon\GCServiceWrapper(\Amazon\Config\Region::US);
+ * $gcSerivce = new \Amazon\GCServiceWrapper($account, $region);
  * $giftcard = $gcService->createGiftCode(5); //request for a USD$5 giftcard code
  *
  * $gcService->cancelGiftCode($giftcard['gcId']); //cancel the code by Code ID
@@ -26,11 +29,12 @@ class GCServiceWrapper
     const __SERVICE_TARGET__ = 'com.amazonaws.agcod';
 
     private $__awsService;
+    private $__account;
 
-    public function __construct($region, $useSandbox = FALSE) {
-        $serviceConfig = Config\Region::getServiceConf($region, $useSandbox);
+    public function __construct(Config\Account $myAccount, Config\Region $myRegion) {
+        $this->__account = $myAccount;
 
-        $this->__awsService = new AwsService($serviceConfig['regionCode'], $serviceConfig['host'], $serviceConfig['endpoint'], $serviceConfig['currencyCode'], self::__SERVICE_NAME__, self::__SERVICE_TARGET__);
+        $this->__awsService = new AwsService($myRegion->getRegionCode(), $myRegion->getHost(), $myRegion->getEndPoint(), $myRegion->getCurrencyCode(), self::__SERVICE_NAME__, self::__SERVICE_TARGET__, $myAccount->getSecretKey(), $myAccount->getAccessKey());
     }
 
     /**
@@ -44,7 +48,7 @@ class GCServiceWrapper
 
         $data                      = [];
         $data['creationRequestId'] = $this->__generateRequestId();
-        $data['partnerId']         = Config\Account::getPartnerId();
+        $data['partnerId']         = $this->__account->getPartnerId();
         $data['value']             = ['currencyCode' => $this->__awsService->getCurrency(), 'amount' => $gcAmount];
 
         $payload                = json_encode($data); // step1. gen json "PAYLOAD"
@@ -62,7 +66,7 @@ class GCServiceWrapper
 
         $data                      = [];
         $data['creationRequestId'] = $this->__generateRequestId();
-        $data['partnerId']         = Config\Account::getPartnerId();
+        $data['partnerId']         = $this->__account->getPartnerId();
         $data['gcId']              = $codeId;
 
         $payload                = json_encode($data);
@@ -74,7 +78,7 @@ class GCServiceWrapper
     }
 
     private function __generateRequestId() {
-        return sprintf("%012s", Config\Account::getPartnerId() . substr(microtime(TRUE) * 10000, -7));
+        return sprintf("%012s", $this->__account->getPartnerId() . substr(microtime(TRUE) * 10000, -7));
     }
 
     private function __getIso8601TimeFormat($timestamp) {

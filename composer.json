@@ -1,4 +1,13 @@
 {
+    "name": "johnnychens/amazon.gcod",
+    "description": "This class is for making a request to Amazon GiftCode on Demand service API.",
+    "authors": [
+        {
+            "name": "johnnychen85",
+            "email": "chz0321@gmail.com"
+        }
+    ],
+
     "require": {
         "phpunit/phpunit": "^4.8"
     },

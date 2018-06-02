@@ -17,14 +17,19 @@ class AwsService
     private $__currency;
     private $__serviceName;
     private $__serviceTarget;
+    private $__secretKey;
+    private $__accessKey;
 
-    public function __construct($regionCode, $host, $endpoint, $currency, $serviceName, $serviceTarget) {
+
+    public function __construct($regionCode, $host, $endpoint, $currency, $serviceName, $serviceTarget, $secretKey, $accessKey) {
         $this->__regionCode    = $regionCode;
         $this->__endpoint      = $endpoint;
         $this->__host          = $host;
         $this->__currency      = $currency;
         $this->__serviceName   = $serviceName;
         $this->__serviceTarget = $serviceTarget;
+        $this->__secretKey     = $secretKey;
+        $this->__accessKey     = $accessKey;
     }
 
     /**
@@ -64,7 +69,7 @@ class AwsService
             $this->__serviceName . "/aws4_request\n" .
             $hashedCanonicalRequest;
         // step6. make "SIGNING KEY"
-        $kDate    = hash_hmac('sha256', $this->__convertIso8601TimeFormat2DateTime($iso8601FormattedDateTime), 'AWS4' . Config\Account::getSecretKey(), TRUE);
+        $kDate    = hash_hmac('sha256', $this->__convertIso8601TimeFormat2DateTime($iso8601FormattedDateTime), 'AWS4' . $this->__secretKey, TRUE);
         $kRegion  = hash_hmac('sha256', $this->__regionCode, $kDate, TRUE);
         $kService = hash_hmac('sha256', $this->__serviceName, $kRegion, TRUE);
         $kSigning = hash_hmac('sha256', 'aws4_request', $kService, TRUE);
@@ -76,7 +81,7 @@ class AwsService
 
     function sendRequest($payload, $signature, $op, $iso8601FormattedDateTime) {
         // get gc
-        return $this->__post($this->__endpoint .'/'. $op, $this->__generateHeaders($signature, $op, $iso8601FormattedDateTime), $payload);
+        return $this->__post($this->__endpoint . '/' . $op, $this->__generateHeaders($signature, $op, $iso8601FormattedDateTime), $payload);
     }
 
     private function __generateHeaders($signature, $op, $iso8601FormattedDateTime) {
@@ -86,7 +91,7 @@ class AwsService
             $this->__host,
             'x-amz-date:' . $iso8601FormattedDateTime,
             'x-amz-target:' . $this->__serviceTarget . '.' . $this->__serviceName . '.' . $op,
-            'Authorization:AWS4-HMAC-SHA256 Credential=' . Config\Account::getAccessKey() .
+            'Authorization:AWS4-HMAC-SHA256 Credential=' . $this->__accessKey .
             '/' . $this->__convertIso8601TimeFormat2DateTime($iso8601FormattedDateTime) .
             '/' . $this->__regionCode . '/' . $this->__serviceName . '/aws4_request, SignedHeaders=accept;content-type;host;x-amz-date;x-amz-target,Signature=' .
             $signature,

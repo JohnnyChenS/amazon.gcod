@@ -17,9 +17,10 @@ use Amazon\Config;
 class CreateCodeTest extends PHPUnit_Framework_TestCase
 {
     public function testRespondSuccess() {
-        $config = Config\Region::getServiceConf(Config\Region::US, TRUE);
+        $region  = new Config\Region(Config\Region::US, TRUE);
+        $account = new Config\Account("myid", "mykey", "mykey2");
 
-        $mockService = $this->getMock(AwsService::class, ['sendRequest'], [$config['regionCode'], $config['host'], $config['endpoint'], $config['currencyCode'], 'AGCODService','com.amazonaws.agcod']);
+        $mockService = $this->getMock(AwsService::class, ['sendRequest'], [$region->getRegionCode(), $region->getHost(), $region->getEndPoint(), $region->getCurrencyCode(), 'AGCODService', 'com.amazonaws.agcod', $account->getSecretKey(), $account->getAccessKey()]);
         $mockService->expects($this->once())->method('sendRequest')->will(
             $this->returnCallback(function ($signature, $payload, $op) {
                 return json_encode([
@@ -30,11 +31,11 @@ class CreateCodeTest extends PHPUnit_Framework_TestCase
             })
         );
 
-        $wrapper = new \Amazon\GCServiceWrapper(Config\Region::US, TRUE);
+        $wrapper = new \Amazon\GCServiceWrapper($account, $region);
 
         $reflection = new ReflectionClass($wrapper);
-        $property = $reflection->getProperty('__awsService');
-        $property->setAccessible(true);
+        $property   = $reflection->getProperty('__awsService');
+        $property->setAccessible(TRUE);
         $property->setValue($wrapper, $mockService);
 
         $result = $wrapper->createGiftCode(3);
@@ -42,14 +43,17 @@ class CreateCodeTest extends PHPUnit_Framework_TestCase
 
         $signature = json_decode($result['signature'], TRUE);
 
-        $this->assertEquals("YourPartnerId", $signature['partnerId']);
+        $this->assertEquals("myid", $signature['partnerId']);
         $this->assertEquals(3, $signature['value']['amount']);
         $this->assertEquals('USD', $signature['value']['currencyCode']);
     }
 
-    public function testRealRequest(){
-        $wrapper = new \Amazon\GCServiceWrapper(Config\Region::US, TRUE);
-        $result = $wrapper->createGiftCode(3);
+    public function testRealRequest() {
+        $account = new Config\Account("myPartnerId", "myAccessKey", "mySecretKey");
+        $region  = new Config\Region(Config\Region::US, TRUE);
+
+        $wrapper = new \Amazon\GCServiceWrapper($account, $region);
+        $result  = $wrapper->createGiftCode(3);
         var_dump($result);
     }
 }

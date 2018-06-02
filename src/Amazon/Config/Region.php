@@ -14,7 +14,9 @@ class Region
     const US = 'us';
     const EU = 'eu';
 
-    private static $__serviceEndpoint = [
+    private $__config;
+
+    private $__serviceEndpoint = [
         'sandbox' => [
             'us' => [
                 'regionCode'   => 'us-east-1',
@@ -34,11 +36,27 @@ class Region
         ],
     ];
 
-    public static function getServiceConf($region, $isSandbox) {
-        return self::$__serviceEndpoint[self::__getEnv($isSandbox)][$region];
+    public function __construct($region, $isSandbox) {
+        $this->__config = $this->__serviceEndpoint[$this->__getEnv($isSandbox)][$region];
     }
 
-    private static function __getEnv($isSandbox){
+    public function getRegionCode(){
+        return $this->__config['regionCode'];
+    }
+
+    public function getHost(){
+        return $this->__config['host'];
+    }
+
+    public function getEndPoint(){
+        return $this->__config['endpoint'];
+    }
+
+    public function getCurrencyCode(){
+        return $this->__config['currencyCode'];
+    }
+
+    private function __getEnv($isSandbox){
         if($isSandbox)
             return 'sandbox';
 

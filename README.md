@@ -3,13 +3,18 @@
 
 Usage:
 ```php
-//replace these configurations with your own settings in the \Amazon\Config\Account.php file
+//initiate the \Amazon\Config\Account class with with your own settings:
 $partnerId = 'YourCompanyID';
 $accessKey = 'findfromYourAwsAccountManagementPage';
 $secretKey = 'findYourAwsAccountManagementPage';
 
-//US Region Amazon Service API should instantiate like this:
-$gcService = new GCServiceWrapper(\Amazon\Config\Region::US,TRUE);
+$account = new \Amazon\Config\Account($partnerId, $accessKey, $secretKey);
+
+//initiate the \Amazon\Config\Region class:
+$region = new \Amazon\Config\Region(\Amazon\Config\Region::US, TRUE);
+
+//Amazon Service API should instantiate like this:
+$gcService = new GCServiceWrapper($account, $region);
 
 $giftcard = $gcService->createGiftCode(3);//request for a USD$3 giftcard code
 

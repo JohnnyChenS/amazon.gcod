@@ -11,28 +11,34 @@ namespace Amazon\Config;
 
 class Account
 {
-    private static $__partnerId = 'YourPartnerId';
-    private static $__accessKey = 'YourAccessKey';
-    private static $__secretKey = 'YourSecretKey';
+    private $__partnerId = 'YourPartnerId';
+    private $__accessKey = 'YourAccessKey';
+    private $__secretKey = 'YourSecretKey';
 
-    /**
-     * @return string
-     */
-    public static function getPartnerId() {
-        return self::$__partnerId;
+    public function __construct($partnerId, $accessKey, $secretKey) {
+        $this->__partnerId = $partnerId;
+        $this->__accessKey = $accessKey;
+        $this->__secretKey = $secretKey;
     }
 
     /**
      * @return string
      */
-    public static function getAccessKey() {
-        return self::$__accessKey;
+    public function getPartnerId() {
+        return $this->__partnerId;
     }
 
     /**
      * @return string
      */
-    public static function getSecretKey() {
-        return self::$__secretKey;
+    public function getAccessKey() {
+        return $this->__accessKey;
+    }
+
+    /**
+     * @return string
+     */
+    public function getSecretKey() {
+        return $this->__secretKey;
     }
 }
