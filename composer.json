@@ -1,6 +1,7 @@
 {
     "name": "johnnychens/amazon.gcod",
     "description": "This class is for making a request to Amazon GiftCode on Demand service API.",
+    "license": "MIT",
     "authors": [
         {
             "name": "johnnychen85",
