@@ -24,6 +24,12 @@ class Region
                 'endpoint'     => 'https://agcod-v2-gamma.amazon.com',
                 'currencyCode' => 'USD',
             ],
+            'eu' => [
+                'regionCode'   => 'eu-west-1',
+                'host'         => 'host:agcod-v2-eu-gamma.amazon.com',
+                'endpoint'     => 'https://agcod-v2-eu-gamma.amazon.com',
+                'currencyCode' => 'EUR',
+            ],
         ],
 
         'prod' => [
@@ -32,6 +38,12 @@ class Region
                 'host'         => 'host:agcod-v2.amazon.com',
                 'endpoint'     => 'https://agcod-v2.amazon.com',
                 'currencyCode' => 'USD',
+            ],
+            'eu' => [
+                'regionCode'   => 'eu-west-1',
+                'host'         => 'host:agcod-v2-eu.amazon.com',
+                'endpoint'     => 'https://agcod-v2-eu.amazon.com',
+                'currencyCode' => 'EUR',
             ],
         ],
     ];
