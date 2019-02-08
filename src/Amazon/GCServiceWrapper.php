@@ -7,19 +7,19 @@
  *
  * sample code:
  *
- * //initialate the \Amazon\Config\Account class with with your own settings
+ * //initialize the \Amazon\Config\Account class with with your own settings
  *
  * $__partnerId = 'YourCompanyID';
- * $__accessKey = 'findfromYourAwsAccountManagementPage';
+ * $__accessKey = 'findFromYourAwsAccountManagementPage';
  * $__secretKey = 'findYourAwsAccountManagementPage';
  *
- * $account = new \Amazon\Config\Account($partnerId, $accessKey, $secretKey);
+ * $account = new \Amazon\Config\Account($__partnerId, $__accessKey, $__secretKey);
  * $region = new \Amazon\Config\Region(\Amazon\Config\Region::US);
  *
- * $gcSerivce = new \Amazon\GCServiceWrapper($account, $region);
- * $giftcard = $gcService->createGiftCode(5); //request for a USD$5 giftcard code
+ * $gcService = new \Amazon\GCServiceWrapper($account, $region);
+ * $giftCard = $gcService->createGiftCode(5); //request for a USD$5 gift card code
  *
- * $gcService->cancelGiftCode($giftcard['gcId']); //cancel the code by Code ID
+ * $gcService->cancelGiftCode($giftCard['gcId']); //cancel the code by Code ID
  */
 namespace Amazon;
 
