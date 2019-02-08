@@ -1,9 +1,5 @@
 <?php
 include __DIR__ . '/../vendor/autoload.php';
-include __DIR__ . "/../src/Amazon/Config/Account.php";
-include __DIR__ . "/../src/Amazon/Config/Region.php";
-include __DIR__ . "/../src/Amazon/AwsService.php";
-include __DIR__ . "/../src/Amazon/GCServiceWrapper.php";
 
 /**
  * Created by PhpStorm.
