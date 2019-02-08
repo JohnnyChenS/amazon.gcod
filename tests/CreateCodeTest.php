@@ -31,8 +31,8 @@ class CreateCodeTest extends PHPUnit_Framework_TestCase
 
         $reflection = new ReflectionClass($wrapper);
         $property   = $reflection->getProperty('__awsService');
-        $property->setAccessible(TRUE);
-        $property->setValue($wrapper, $mockService);
+        $property->setAccessible(TRUE); //use PHP ReflectionClass to alter the accessibility
+        $property->setValue($wrapper, $mockService); //inject mock
 
         $result = $wrapper->createGiftCode(3);
         $this->assertEquals('CreateGiftCard', $result['operation']);
