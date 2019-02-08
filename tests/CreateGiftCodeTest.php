@@ -10,7 +10,7 @@ include __DIR__ . '/../vendor/autoload.php';
 use Amazon\AwsService;
 use Amazon\Config;
 
-class CreateCodeTest extends PHPUnit_Framework_TestCase
+class CreateGiftCodeTest extends PHPUnit_Framework_TestCase
 {
     public function testRespondSuccess() {
         $region  = new Config\Region(Config\Region::US, TRUE);
