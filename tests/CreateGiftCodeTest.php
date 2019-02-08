@@ -1,6 +1,4 @@
 <?php
-include __DIR__ . '/../vendor/autoload.php';
-
 /**
  * Created by PhpStorm.
  * User: johnny
